@@ -1,8 +1,8 @@
-name: xpath
-description: A new Flutter package.
-version: 0.0.1
-author:
-homepage:
+name: xpath_parse
+description: xpath package for dart
+version: 1.0.0
+author: codingfd<codingfd.zhou@gmail.com>
+homepage: "https://github.com/codingfd/xpath"
 
 environment:
   sdk: ">=2.2.0 <3.0.0"
@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: 3.0.9
   html: ^0.14.0+3
 
 dev_dependencies:

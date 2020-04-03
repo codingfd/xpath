@@ -1,30 +1,23 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:xpath/token_kind.dart';
-import 'package:xpath/xpath_parser.dart';
+import 'package:xpath_parse/token_kind.dart';
+import 'package:xpath_parse/xpath_parser.dart';
 
-//bool matches(Node node, String selector) =>
-//    SelectorEvaluator().matches(node, _parseSelectorList(selector));
 
 class XPath {
   final rootElement;
 
   XPath(this.rootElement);
 
-  static XPath config(String html) {
-//    var time = DateTime.now().millisecond;
+  static XPath source(String html) {
     var node = parse(html).documentElement;
     var evaluator = XPath(node);
-//    print("parse html cost ${DateTime.now().millisecond - time}");
-//  evaluator.matchSelectorGroup(node, parseSelectorGroup(xpath));
     return evaluator;
   }
 
   SelectorEvaluator query(String xpath) {
-//    var time = DateTime.now().millisecond;
     var evaluator = SelectorEvaluator();
     evaluator.matchSelectorGroup(rootElement, parseSelectorGroup(xpath));
-//    print("query '$xpath' cost ${DateTime.now().millisecond - time}");
     return evaluator;
   }
 }

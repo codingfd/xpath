@@ -1,5 +1,5 @@
-import 'package:xpath/token_kind.dart';
-import 'package:xpath/xpath_selector.dart';
+import 'package:xpath_parse/token_kind.dart';
+import 'package:xpath_parse/xpath_selector.dart';
 
 SelectorGroup parseSelectorGroup(String xpath) {
   var selectors = <Selector>[];

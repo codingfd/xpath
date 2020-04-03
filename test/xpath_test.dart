@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:xpath/xpath_selector.dart';
+import 'package:xpath_parse/xpath_selector.dart';
 
 final String html = '''
 <html>
@@ -20,7 +20,7 @@ final String html = '''
 
 Future<void> main() async {
   test('adds one to input values', () async {
-    var xpath = XPath.config(html);
+    var xpath = XPath.source(html);
     print(xpath.query("//div/a/text()").list());
     print(xpath.query("//div/a/@href").get());
     print(xpath.query("//div[@class]/text()").list());

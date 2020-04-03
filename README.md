@@ -1,14 +1,16 @@
-# xpath
+# xpath package for dart
 
-A new Flutter package.
+[![Pub](https://img.shields.io/pub/v/gesture_unlock.svg?style=flat-square)](https://pub.dartlang.org/packages/xpath_parse)
+[![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/codingfd/xpath)<br>
 
-## Getting Started
+### Add dependency
+```yaml
+dependencies:
+  xpath_parse: lastVersion
+```
+### simple to use
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+XPath.config(html).query("//div/a/text()").list()
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+more simple refer to [this](https://github.com/codingfd/xpath/blob/master/test/xpath_test.dart)
+
