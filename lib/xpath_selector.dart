@@ -3,18 +3,21 @@ import 'package:html/parser.dart';
 import 'package:xpath_parse/token_kind.dart';
 import 'package:xpath_parse/xpath_parser.dart';
 
-
 class XPath {
   final rootElement;
 
   XPath(this.rootElement);
 
+  ///parse [html] to node
+  ///
   static XPath source(String html) {
     var node = parse(html).documentElement;
     var evaluator = XPath(node);
     return evaluator;
   }
 
+  ///query data from [rootElement] by [xpath]
+  ///
   SelectorEvaluator query(String xpath) {
     var evaluator = SelectorEvaluator();
     evaluator.matchSelectorGroup(rootElement, parseSelectorGroup(xpath));
@@ -30,10 +33,8 @@ class SelectorEvaluator extends VisitorBase {
   var _temps = <Element>[];
   String _output;
 
-  SelectorEvaluator query(String xpath) {
-    return this;
-  }
-
+  ///select elements from node or node.child  which match selector
+  ///
   void matchSelector(Node node, Selector selector) {
     _temps.clear();
     if (node is! Element) return;
@@ -47,7 +48,7 @@ class SelectorEvaluator extends VisitorBase {
               _temps.add(item);
             }
           }
-          removeIfNotMatchPosition(selector);
+          _removeIfNotMatchPosition(selector);
           _results.addAll(_temps);
         }
         break;
@@ -59,7 +60,7 @@ class SelectorEvaluator extends VisitorBase {
             _temps.add(item);
           }
         }
-        removeIfNotMatchPosition(selector);
+        _removeIfNotMatchPosition(selector);
         _results.addAll(_temps);
         for (var item in node.nodes) {
           matchSelector(item, selector);
@@ -81,6 +82,8 @@ class SelectorEvaluator extends VisitorBase {
     }
   }
 
+  ///select elements from node or node.child  which match group
+  ///
   void matchSelectorGroup(Node node, SelectorGroup group) {
     _output = group.output;
     _results = [node];
@@ -93,6 +96,8 @@ class SelectorEvaluator extends VisitorBase {
     }
   }
 
+  ///return first of  [list]
+  ///
   String get() {
     var data = list();
     if (data.isNotEmpty) {
@@ -102,6 +107,8 @@ class SelectorEvaluator extends VisitorBase {
     }
   }
 
+  ///return List<String> form [_results] output text
+  ///
   List<String> list() {
     var list = <String>[];
 
@@ -128,7 +135,7 @@ class SelectorEvaluator extends VisitorBase {
       }
     } else if (_output?.startsWith("//@") == true) {
       var attr = _output.substring(3, _output.length);
-      void getAttrByElements(List<Element> elements){
+      void getAttrByElements(List<Element> elements) {
         for (var element in elements) {
           var attrValue = element.attributes[attr].trim();
           if (attrValue != null) {
@@ -139,6 +146,7 @@ class SelectorEvaluator extends VisitorBase {
           getAttrByElements(element.children);
         }
       }
+
       getAttrByElements(elements());
     } else {
       for (var element in elements()) {
@@ -231,7 +239,7 @@ class SelectorEvaluator extends VisitorBase {
     return result;
   }
 
-  void removeIfNotMatchPosition(Selector node) {
+  void _removeIfNotMatchPosition(Selector node) {
     _temps.removeWhere((item) {
       _element = item;
       return node.positionSelector?.visit(this) == false;
@@ -242,6 +250,9 @@ class SelectorEvaluator extends VisitorBase {
   visitSimpleSelector(SimpleSelector node) => false;
 }
 
+///
+/// select element which match [Selector]
+///
 class SelectorGroup {
   final List<Selector> selectors;
   final String source;
@@ -250,7 +261,15 @@ class SelectorGroup {
   SelectorGroup(this.selectors, this.output, this.source);
 }
 
+///
+/// select element which match [SimpleSelector]
+///
 class Selector {
+  /// [TokenKind.CHILD]
+  /// [TokenKind.ROOT]
+  /// [TokenKind.CURRENT]
+  /// [TokenKind.PARENT]
+  ///
   final int _nodeType;
 
   final List<SimpleSelector> simpleSelectors;
@@ -264,9 +283,6 @@ class Selector {
   bool visit(VisitorBase visitor) => visitor.visitSelector(this);
 }
 
-//<editor-fold desc="selector for element attr  position ..">
-// All other selectors (element, #id, .class, attribute, pseudo, negation,
-// namespace, *) are derived from this selector.
 class SimpleSelector {
   final String _name;
   final String _source;
@@ -277,24 +293,24 @@ class SimpleSelector {
 
   bool get isWildcard => _name == "*";
 
+  ///transfer  [VisitorBase.visitSimpleSelector]
   visit(VisitorBase visitor) => visitor.visitSimpleSelector(this);
 
   @override
   String toString() => _source;
 }
 
-// element name
+/// select name of elements
 class ElementSelector extends SimpleSelector {
   ElementSelector(String name, String source) : super(name, source);
 
+  ///transfer  [VisitorBase.visitElementSelector]
   visit(VisitorBase visitor) => visitor.visitElementSelector(this);
-
-  ElementSelector clone() => ElementSelector(_name, _source);
 
   String toString() => name;
 }
 
-// [attr op value]
+///select attr of elements
 class AttributeSelector extends SimpleSelector {
   final int _op;
   final _value;
@@ -306,53 +322,13 @@ class AttributeSelector extends SimpleSelector {
 
   get value => _value;
 
-  String matchOperator() {
-    /*   switch (_op) {
-      case TokenKind.EQUALS:
-        return '=';
-      case TokenKind.INCLUDES:
-        return '~=';
-      case TokenKind.DASH_MATCH:
-        return '|=';
-      case TokenKind.PREFIX_MATCH:
-        return '^=';
-      case TokenKind.SUFFIX_MATCH:
-        return '\$=';
-      case TokenKind.SUBSTRING_MATCH:
-        return '*=';
-      case TokenKind.NO_MATCH:
-        return '';
-    }
-    return null;*/
-  }
-
-  // Return the TokenKind for operator used by visitAttributeSelector.
-  String matchOperatorAsTokenString() {
-    /* switch (_op) {
-      case TokenKind.EQUALS:
-        return 'EQUALS';
-      case TokenKind.INCLUDES:
-        return 'INCLUDES';
-      case TokenKind.DASH_MATCH:
-        return 'DASH_MATCH';
-      case TokenKind.PREFIX_MATCH:
-        return 'PREFIX_MATCH';
-      case TokenKind.SUFFIX_MATCH:
-        return 'SUFFIX_MATCH';
-      case TokenKind.SUBSTRING_MATCH:
-        return 'SUBSTRING_MATCH';
-    }
-    return null;*/
-  }
-
-  AttributeSelector clone() => AttributeSelector(_name, _op, _value, _source);
-
+  ///transfer  [VisitorBase.visitAttributeSelector]
   visit(VisitorBase visitor) => visitor.visitAttributeSelector(this);
 }
 
-// list position of  elements
+///select position of elements
 class PositionSelector extends SimpleSelector {
-  // last() position()
+  // last() or position()
   final int _position;
 
   // >  >=  <  <=  or null
@@ -362,27 +338,35 @@ class PositionSelector extends SimpleSelector {
   PositionSelector(this._position, this._op, this._value, String source)
       : super("*", source);
 
-//  static PositionSelector new1(int value, source) => PositionSelector(
-//      "*", TokenKind.NO_MATCH, TokenKind.NO_MATCH, value, source);
-
   int get operatorKind => _op;
 
   get value => _value;
 
+  ///transfer  [VisitorBase.visitPositionSelector]
   visit(VisitorBase visitor) => visitor.visitPositionSelector(this);
 }
 
 abstract class VisitorBase {
   visitSimpleSelector(SimpleSelector node);
 
+  ///return [bool] type
+  ///if element enable visit by ElementSelector  true
+  ///else   false
   bool visitElementSelector(ElementSelector node);
 
+  ///return [bool] type
+  ///if element enable visit by AttributeSelector  true
+  ///else   false
   bool visitAttributeSelector(AttributeSelector node);
 
+  ///return [bool] type
+  ///if element enable visit by PositionSelector  true
+  ///else   false
   bool visitPositionSelector(PositionSelector node);
 
+  ///return [bool] type
+  ///if element enable visit by selector  true
+  ///else   false
   bool visitSelector(Selector node);
-
-//  bool visitSelectorGroup(SelectorGroup node);
 }
 //</editor-fold>

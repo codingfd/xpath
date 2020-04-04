@@ -44,15 +44,13 @@ class TokenKind {
   static const int LAST = 601; //     last()
   static const int POSITION = 602; // position()
 
-  static const Map<String, int> _Method = {
-    "last()": LAST,
-    "position()": POSITION
-  };
 
+  ///string to position operator
   static int matchPositionOperator(String text) {
     return _POSITION_OPERATOR[text] ?? NO_MATCH;
   }
 
+  ///string to attr operator
   static int matchAttrOperator(String text) {
     return _ATTR_OPERATOR[text] ?? NO_MATCH;
   }

@@ -1,6 +1,8 @@
 import 'package:xpath_parse/token_kind.dart';
 import 'package:xpath_parse/xpath_selector.dart';
 
+/// Parse the [XPath] string to [SelectorGroup]
+///
 SelectorGroup parseSelectorGroup(String xpath) {
   var selectors = <Selector>[];
   String output;
@@ -32,14 +34,16 @@ SelectorGroup parseSelectorGroup(String xpath) {
     var simpleSelector = firstSelector.simpleSelectors.first;
     if (simpleSelector != null &&
         (simpleSelector.name != "body" || simpleSelector.name != "head")) {
-      selectors
-          .insert(0,Selector(TokenKind.CHILD, [ElementSelector("body", "/body")]));
+      selectors.insert(
+          0, Selector(TokenKind.CHILD, [ElementSelector("body", "/body")]));
     }
   }
 
   return SelectorGroup(selectors, output, xpath);
 }
 
+///parse input string to [Selector]
+///
 Selector _parseSelector(String input) {
   int type;
   String source;
@@ -69,7 +73,8 @@ Selector _parseSelector(String input) {
     var group = match.group(2);
     //匹配Attr
     if (group.startsWith("@")) {
-      var m = RegExp("^@(.+?)(=|!=|\\^=|~=|\\*=|\\\$=)(.+)\$").firstMatch(group);
+      var m =
+          RegExp("^@(.+?)(=|!=|\\^=|~=|\\*=|\\\$=)(.+)\$").firstMatch(group);
       if (m != null) {
         var name = m.group(1);
         var op = TokenKind.matchAttrOperator(m.group(2));
@@ -77,10 +82,7 @@ Selector _parseSelector(String input) {
         simpleSelectors.add(AttributeSelector(name, op, value, group));
       } else {
         simpleSelectors.add(AttributeSelector(
-            group.substring(1, group.length),
-            TokenKind.NO_MATCH,
-            null,
-            group));
+            group.substring(1, group.length), TokenKind.NO_MATCH, null, group));
       }
     }
     //匹配数字
