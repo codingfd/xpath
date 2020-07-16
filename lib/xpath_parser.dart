@@ -78,7 +78,7 @@ Selector _parseSelector(String input) {
       if (m != null) {
         var name = m.group(1);
         var op = TokenKind.matchAttrOperator(m.group(2));
-        var value = m.group(3).replaceAll("'", "");
+        var value = m.group(3).replaceAll(RegExp("['\"]"), "");
         simpleSelectors.add(AttributeSelector(name, op, value, group));
       } else {
         simpleSelectors.add(AttributeSelector(
