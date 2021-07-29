@@ -26,16 +26,16 @@ class XPath {
 }
 
 class SelectorEvaluator extends VisitorBase {
-  Element _element;
+  Element? _element;
 
   //结果
-  var _results = <Element>[];
-  var _temps = <Element>[];
-  String _output;
+  List<Element?> _results = [];
+  List<Element?> _temps = [];
+  String? _output;
 
   ///select elements from node or node.child  which match selector
   ///
-  void matchSelector(Node node, Selector selector) {
+  void matchSelector(Node? node, Selector selector) {
     _temps.clear();
     if (node is! Element) return;
     switch (selector.operatorKind) {
@@ -84,9 +84,9 @@ class SelectorEvaluator extends VisitorBase {
 
   ///select elements from node or node.child  which match group
   ///
-  void matchSelectorGroup(Node node, SelectorGroup group) {
+  void matchSelectorGroup(Node? node, SelectorGroup group) {
     _output = group.output;
-    _results = [node];
+    _results = [node as Element];
     for (var selector in group.selectors) {
       var list = List.of(_results);
       _results.clear();
@@ -114,43 +114,47 @@ class SelectorEvaluator extends VisitorBase {
 
     if (_output == "/text()") {
       for (var element in elements()) {
-        list.add(element.text.trim());
+        list.add(element!.text.trim());
       }
     } else if (_output == "//text()") {
-      void getTextByElement(List<Element> elements) {
+      void getTextByElement(List<Element?> elements) {
         for (var item in elements) {
-          list.add(item.text.trim());
+          list.add(item!.text.trim());
           getTextByElement(item.children);
         }
       }
 
       getTextByElement(elements());
     } else if (_output?.startsWith("/@") == true) {
-      var attr = _output.substring(2, _output.length);
+      var attr = _output!.substring(2, _output!.length);
       for (var element in elements()) {
-        var attrValue = element.attributes[attr].trim();
-        if (attrValue != null) {
-          list.add(attrValue);
-        }
-      }
-    } else if (_output?.startsWith("//@") == true) {
-      var attr = _output.substring(3, _output.length);
-      void getAttrByElements(List<Element> elements) {
-        for (var element in elements) {
-          var attrValue = element.attributes[attr].trim();
+        if (element != null) {
+          var attrValue = element.attributes[attr]?.trim();
           if (attrValue != null) {
             list.add(attrValue);
           }
         }
+      }
+    } else if (_output?.startsWith("//@") == true) {
+      var attr = _output!.substring(3, _output!.length);
+      void getAttrByElements(List<Element?> elements) {
         for (var element in elements) {
-          getAttrByElements(element.children);
+          if (element != null) {
+            var attrValue = element.attributes[attr]?.trim();
+            if (attrValue != null) {
+              list.add(attrValue);
+            }
+          }
+        }
+        for (var element in elements) {
+          getAttrByElements(element!.children);
         }
       }
 
       getAttrByElements(elements());
     } else {
       for (var element in elements()) {
-        list.add(element.outerHtml);
+        list.add(element!.outerHtml);
       }
     }
     if (list.isEmpty) {
@@ -159,7 +163,7 @@ class SelectorEvaluator extends VisitorBase {
     return list;
   }
 
-  List<Element> elements() => _results;
+  List<Element?> elements() => _results;
 
   _unsupported(selector) =>
       FormatException("'$selector' is not a valid selector");
@@ -167,7 +171,7 @@ class SelectorEvaluator extends VisitorBase {
   @override
   bool visitAttributeSelector(AttributeSelector selector) {
     // Match name first
-    var value = _element.attributes[selector.name.toLowerCase()];
+    var value = _element!.attributes[selector.name!.toLowerCase()];
     if (value == null) return false;
 
     if (selector.operatorKind == TokenKind.NO_MATCH) return true;
@@ -193,7 +197,8 @@ class SelectorEvaluator extends VisitorBase {
 
   @override
   bool visitElementSelector(ElementSelector selector) =>
-      selector.isWildcard || _element.localName == selector.name.toLowerCase();
+      selector.isWildcard ||
+      _element!.localName == selector.name!.toLowerCase();
 
   @override
   bool visitPositionSelector(PositionSelector selector) {
@@ -256,7 +261,7 @@ class SelectorEvaluator extends VisitorBase {
 class SelectorGroup {
   final List<Selector> selectors;
   final String source;
-  final String output;
+  final String? output;
 
   SelectorGroup(this.selectors, this.output, this.source);
 }
@@ -274,7 +279,7 @@ class Selector {
 
   final List<SimpleSelector> simpleSelectors;
 
-  PositionSelector positionSelector;
+  PositionSelector? positionSelector;
 
   int get operatorKind => _nodeType;
 
@@ -284,12 +289,12 @@ class Selector {
 }
 
 class SimpleSelector {
-  final String _name;
+  final String? _name;
   final String _source;
 
   SimpleSelector(this._name, this._source);
 
-  String get name => _name;
+  String? get name => _name;
 
   bool get isWildcard => _name == "*";
 
@@ -302,12 +307,12 @@ class SimpleSelector {
 
 /// select name of elements
 class ElementSelector extends SimpleSelector {
-  ElementSelector(String name, String source) : super(name, source);
+  ElementSelector(String? name, String source) : super(name, source);
 
   ///transfer  [VisitorBase.visitElementSelector]
   visit(VisitorBase visitor) => visitor.visitElementSelector(this);
 
-  String toString() => name;
+  String toString() => name!;
 }
 
 ///select attr of elements
@@ -315,7 +320,7 @@ class AttributeSelector extends SimpleSelector {
   final int _op;
   final _value;
 
-  AttributeSelector(String name, this._op, this._value, String source)
+  AttributeSelector(String? name, this._op, this._value, String source)
       : super(name, source);
 
   int get operatorKind => _op;
@@ -333,7 +338,7 @@ class PositionSelector extends SimpleSelector {
 
   // >  >=  <  <=  or null
   final int _op;
-  final int _value;
+  final int? _value;
 
   PositionSelector(this._position, this._op, this._value, String source)
       : super("*", source);
