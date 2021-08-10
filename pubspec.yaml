@@ -5,12 +5,12 @@ author: codingfd<codingfd.zhou@gmail.com>
 homepage: "https://github.com/codingfd/xpath"
 
 environment:
-  sdk: ">=2.2.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  html: ^0.14.0+3
+  html: ^0.15.0
 
 dev_dependencies:
   flutter_test:

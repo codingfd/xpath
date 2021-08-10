@@ -5,10 +5,10 @@ import 'package:xpath_parse/xpath_selector.dart';
 ///
 SelectorGroup parseSelectorGroup(String xpath) {
   var selectors = <Selector>[];
-  String output;
+  String? output;
 
   var matches = RegExp("//|/").allMatches(xpath).toList();
-  var selectorSources = List<String>();
+  List<String> selectorSources = [];
   for (var index = 0; index < matches.length; index++) {
     if (index > 0) {
       selectorSources
@@ -31,7 +31,10 @@ SelectorGroup parseSelectorGroup(String xpath) {
 
   var firstSelector = selectors.first;
   if (firstSelector.operatorKind == TokenKind.CHILD) {
-    var simpleSelector = firstSelector.simpleSelectors.first;
+    SimpleSelector? simpleSelector;
+    if (firstSelector.simpleSelectors.isNotEmpty) {
+      simpleSelector = firstSelector.simpleSelectors.first;
+    }
     if (simpleSelector != null &&
         (simpleSelector.name != "body" || simpleSelector.name != "head")) {
       selectors.insert(
@@ -70,7 +73,7 @@ Selector _parseSelector(String input) {
   if (match != null) {
     var elementName = match.group(1);
     simpleSelectors.add(ElementSelector(elementName, input));
-    var group = match.group(2);
+    var group = match.group(2)!;
     //匹配Attr
     if (group.startsWith("@")) {
       var m =
@@ -78,7 +81,7 @@ Selector _parseSelector(String input) {
       if (m != null) {
         var name = m.group(1);
         var op = TokenKind.matchAttrOperator(m.group(2));
-        var value = m.group(3).replaceAll(RegExp("['\"]"), "");
+        var value = m.group(3)!.replaceAll(RegExp("['\"]"), "");
         simpleSelectors.add(AttributeSelector(name, op, value, group));
       } else {
         simpleSelectors.add(AttributeSelector(
@@ -88,7 +91,7 @@ Selector _parseSelector(String input) {
     //匹配数字
     var m = RegExp("^\\d+\$").firstMatch(group);
     if (m != null) {
-      var position = int.tryParse(m.group(0));
+      var position = int.tryParse(m.group(0)!);
       selector.positionSelector =
           PositionSelector(TokenKind.NUM, TokenKind.NO_MATCH, position, input);
     }
@@ -97,7 +100,7 @@ Selector _parseSelector(String input) {
     m = RegExp("^position\\(\\)(<|<=|>|>=)(\\d+)\$").firstMatch(group);
     if (m != null) {
       var op = TokenKind.matchPositionOperator(m.group(1));
-      var value = int.tryParse(m.group(2));
+      var value = int.tryParse(m.group(2) ?? '');
       selector.positionSelector =
           PositionSelector(TokenKind.POSITION, op, value, input);
     }
