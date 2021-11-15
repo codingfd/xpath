@@ -37,7 +37,7 @@ class SelectorEvaluator extends VisitorBase {
 
   ///select elements from node or node.child  which match selector
   ///
-  void matchSelector(Node node, Selector selector) {
+  void matchSelector(Node? node, Selector selector) {
     _temps.clear();
     if (node is! Element) return;
     switch (selector.operatorKind) {
