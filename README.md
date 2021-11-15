@@ -26,75 +26,27 @@ XPath.source(html).query("//div/a/text()").list()
 
 more simple refer to [this](https://github.com/codingfd/xpath/blob/master/test/xpath_test.dart)
 
+
+
 ## Syntax supported:
-<table>
-    <tr>
-        <td width="100">Name</td>
-        <td width="100">Expression</td>
-    </tr>
-    <tr>
-        <td>immediate parent</td>
-        <td>/</td>
-    </tr>
-    <tr>
-        <td>parent</td>
-        <td>//</td>
-    </tr>
-    <tr>
-        <td>attribute</td>
-        <td>[@key=value]</td>
-    </tr>
-    <tr>
-        <td>nth child</td>
-        <td>tag[n]</td>
-    </tr>
-    <tr>
-        <td>attribute</td>
-        <td>/@key</td>
-    </tr>
-    <tr>
-        <td>wildcard in tagname</td>
-        <td>/*</td>
-    </tr>
-    <tr>
-        <td>function</td>
-        <td>function()</td>
-    </tr>
-</table>
+|Name|Expression|
+|---|---|
+|immediate parent|/|
+|parent|//|
+|attribute|	[@key=value]|
+|nth child|	tag[n]|
+|attribute|	/@key|
+|wildcard in tagname| /*|
+|function|function()|
 
 ### Extended syntax supported:
 
 These XPath syntax are extended only in Xsoup (for convenience in extracting HTML, refer to Jsoup CSS Selector):
 
-<table>
-    <tr>
-        <td width="100">Name</td>
-        <td width="100">Expression</td>
-        <td>Support</td>
-    </tr>
-    <tr>
-        <td>attribute value not equals</td>
-        <td>[@key!=value]</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>attribute value start with</td>
-        <td>[@key~=value]</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>attribute value end with</td>
-        <td>[@key$=value]</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>attribute value contains</td>
-        <td>[@key*=value]</td>
-        <td>yes</td>
-    </tr>
-    <tr>
-        <td>attribute value match regex</td>
-        <td>[@key~=value]</td>
-        <td>yes</td>
-    </tr>
-</table>
+|Name|Expression|Support|
+|---|---|---|
+|attribute value not equals|[@key!=value]|√|
+|attribute value start with|[@key~=value]|√|
+|attribute value end with|[@key$=value]|√|
+|attribute value contains|[@key*=value]|√|
+|attribute value match regex|[@key~=value]|√|
