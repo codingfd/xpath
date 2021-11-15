@@ -1,5 +1,5 @@
-import 'package:xpath_parse/token_kind.dart';
-import 'package:xpath_parse/xpath_selector.dart';
+import 'package:html_xpath/token_kind.dart';
+import 'package:html_xpath/xpath_selector.dart';
 
 /// Parse the [XPath] string to [SelectorGroup]
 ///

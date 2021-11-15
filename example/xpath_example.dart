@@ -1,4 +1,4 @@
-import 'package:xpath_parse/xpath_selector.dart';
+import 'package:html_xpath/xpath_selector.dart';
 
 final String html = '''
 <html lang="en">
