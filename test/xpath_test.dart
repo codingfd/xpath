@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/scaffolding.dart';
 import 'package:xpath_parse/xpath_selector.dart';
 
 final String html = '''
@@ -18,7 +18,7 @@ Future<void> main() async {
     print(xpath.query("//div[@class]/text()").list());
     print(xpath.query("//div[@class='head']/text()").get());
     print(xpath.query("//div[@class^='he']/text()").get());
-    print(xpath.query("//div[@class\$='nd']/text()").get());
+    print(xpath.query(r"//div[@class$='nd']/text()").get());
     print(xpath.query("//div[@class*='ea']/text()").get());
     print(xpath.query("//table//td[1]/text()").get());
     print(xpath.query("//table//td[last()]/text()").get());
