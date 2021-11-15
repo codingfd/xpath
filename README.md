@@ -1,6 +1,7 @@
-# xpath
+# xpath_parse
 [![Pub](https://img.shields.io/pub/v/xpath_parse.svg?style=flat-square)](https://pub.dartlang.org/packages/xpath_parse)
-[![support](https://img.shields.io/badge/platform-flutter%7Cdart%20vm-ff69b4.svg?style=flat-square)](https://github.com/codingfd/xpath)<br>
+[![support](https://img.shields.io/badge/platform-dart%20vm-ff69b4.svg?style=flat-square)](https://github.com/codingfd/xpath)
+
 XPath selector based on html.
 ## Get started
 ### Add dependency
@@ -12,10 +13,17 @@ dependencies:
 
 ```dart
 final String html = '''
-<html>
+<html lang="en">
 <div><a href='https://github.com'>github.com</a></div>
 <div class="head">head</div>
-<table><tr><td>1</td><td>2</td><td>3</td><td>4</td></tr></table>
+<table>
+    <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+    </tr>
+</table>
 <div class="end">end</div>
 </html>
 ''';
@@ -24,7 +32,7 @@ XPath.source(html).query("//div/a/text()").list()
 
 ```
 
-more simple refer to [this](https://github.com/codingfd/xpath/blob/master/test/xpath_test.dart)
+more simple refer to [this](https://github.com/codingfd/xpath/blob/master/example/xpath_example.dart)
 
 
 
