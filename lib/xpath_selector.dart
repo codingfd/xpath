@@ -4,34 +4,36 @@ import 'package:xpath_parse/token_kind.dart';
 import 'package:xpath_parse/xpath_parser.dart';
 
 class XPath {
-  final rootElement;
-
   XPath(this.rootElement);
+
+  final Node rootElement;
 
   ///parse [html] to node
   ///
-  static XPath source(String html) {
-    var node = parse(html).documentElement;
-    var evaluator = XPath(node);
-    return evaluator;
+  factory XPath.source(String html) {
+    final node = parse(html).documentElement;
+    if (node == null) {
+      throw Exception('html is null');
+    }
+    return XPath(node);
   }
 
   ///query data from [rootElement] by [xpath]
   ///
   SelectorEvaluator query(String xpath) {
-    var evaluator = SelectorEvaluator();
+    final evaluator = SelectorEvaluator();
     evaluator.matchSelectorGroup(rootElement, parseSelectorGroup(xpath));
     return evaluator;
   }
 }
 
 class SelectorEvaluator extends VisitorBase {
-  Element _element;
+  late Element _element;
 
-  //结果
+  // 结果
   var _results = <Element>[];
-  var _temps = <Element>[];
-  String _output;
+  final _temps = <Element>[];
+  String? _output;
 
   ///select elements from node or node.child  which match selector
   ///
@@ -39,7 +41,7 @@ class SelectorEvaluator extends VisitorBase {
     _temps.clear();
     if (node is! Element) return;
     switch (selector.operatorKind) {
-      case TokenKind.CHILD:
+      case TokenKind.child:
         {
           for (var item in node.nodes) {
             if (item is! Element) continue;
@@ -52,7 +54,7 @@ class SelectorEvaluator extends VisitorBase {
           _results.addAll(_temps);
         }
         break;
-      case TokenKind.ROOT:
+      case TokenKind.root:
         for (var item in node.nodes) {
           if (item is! Element) continue;
           _element = item;
@@ -67,14 +69,14 @@ class SelectorEvaluator extends VisitorBase {
         }
 
         break;
-      case TokenKind.CURRENT:
+      case TokenKind.current:
         _element = node;
         if (selector.visit(this)) {
           _results.add(node);
         }
         break;
-      case TokenKind.PARENT:
-        _element = node.parent;
+      case TokenKind.parent:
+        _element = node.parent!;
         if (selector.visit(this)) {
           _results.add(_element);
         }
@@ -86,7 +88,7 @@ class SelectorEvaluator extends VisitorBase {
   ///
   void matchSelectorGroup(Node node, SelectorGroup group) {
     _output = group.output;
-    _results = [node];
+    _results = [node as Element];
     for (var selector in group.selectors) {
       var list = List.of(_results);
       _results.clear();
@@ -99,7 +101,7 @@ class SelectorEvaluator extends VisitorBase {
   ///return first of  [list]
   ///
   String get() {
-    var data = list();
+    final data = list();
     if (data.isNotEmpty) {
       return data.first;
     } else {
@@ -110,15 +112,15 @@ class SelectorEvaluator extends VisitorBase {
   ///return List<String> form [_results] output text
   ///
   List<String> list() {
-    var list = <String>[];
+    final list = <String>[];
 
     if (_output == "/text()") {
-      for (var element in elements()) {
+      for (final element in elements()) {
         list.add(element.text.trim());
       }
     } else if (_output == "//text()") {
       void getTextByElement(List<Element> elements) {
-        for (var item in elements) {
+        for (final item in elements) {
           list.add(item.text.trim());
           getTextByElement(item.children);
         }
@@ -126,30 +128,30 @@ class SelectorEvaluator extends VisitorBase {
 
       getTextByElement(elements());
     } else if (_output?.startsWith("/@") == true) {
-      var attr = _output.substring(2, _output.length);
-      for (var element in elements()) {
-        var attrValue = element.attributes[attr].trim();
+      final attr = _output!.substring(2, _output!.length);
+      for (final element in elements()) {
+        final attrValue = element.attributes[attr]?.trim();
         if (attrValue != null) {
           list.add(attrValue);
         }
       }
     } else if (_output?.startsWith("//@") == true) {
-      var attr = _output.substring(3, _output.length);
+      final attr = _output!.substring(3, _output!.length);
       void getAttrByElements(List<Element> elements) {
-        for (var element in elements) {
-          var attrValue = element.attributes[attr].trim();
+        for (final element in elements) {
+          final attrValue = element.attributes[attr]?.trim();
           if (attrValue != null) {
             list.add(attrValue);
           }
         }
-        for (var element in elements) {
+        for (final element in elements) {
           getAttrByElements(element.children);
         }
       }
 
       getAttrByElements(elements());
     } else {
-      for (var element in elements()) {
+      for (final element in elements()) {
         list.add(element.outerHtml);
       }
     }
@@ -165,78 +167,76 @@ class SelectorEvaluator extends VisitorBase {
       FormatException("'$selector' is not a valid selector");
 
   @override
-  bool visitAttributeSelector(AttributeSelector selector) {
+  bool visitAttributeSelector(AttributeSelector node) {
     // Match name first
-    var value = _element.attributes[selector.name.toLowerCase()];
+    final value = _element.attributes[node.name.toLowerCase()];
     if (value == null) return false;
 
-    if (selector.operatorKind == TokenKind.NO_MATCH) return true;
+    if (node.operatorKind == TokenKind.noMatch) return true;
 
-    var select = '${selector.value}';
-    switch (selector.operatorKind) {
-      case TokenKind.EQUALS:
+    final select = '${node.value}';
+    switch (node.operatorKind) {
+      case TokenKind.equals:
         return value == select;
-      case TokenKind.NOT_EQUALS:
+      case TokenKind.notEquals:
         return value != select;
-      case TokenKind.INCLUDES:
+      case TokenKind.includes:
         return value.split(' ').any((v) => v.isNotEmpty && v == select);
-      case TokenKind.PREFIX_MATCH:
+      case TokenKind.prefixMatch:
         return value.startsWith(select);
-      case TokenKind.SUFFIX_MATCH:
+      case TokenKind.suffixMatch:
         return value.endsWith(select);
-      case TokenKind.SUBSTRING_MATCH:
+      case TokenKind.substringMatch:
         return value.contains(select);
       default:
-        throw _unsupported(selector);
+        throw _unsupported(node);
     }
   }
 
   @override
-  bool visitElementSelector(ElementSelector selector) =>
-      selector.isWildcard || _element.localName == selector.name.toLowerCase();
+  bool visitElementSelector(ElementSelector node) =>
+      node.isWildcard || _element.localName == node.name.toLowerCase();
 
   @override
-  bool visitPositionSelector(PositionSelector selector) {
-    var index = _temps.indexOf(_element) + 1;
+  bool visitPositionSelector(PositionSelector node) {
+    final index = _temps.indexOf(_element) + 1;
     if (index == -1) return false;
-    var value = selector.value;
-    if (selector._position == TokenKind.NUM) {
+    final value = node.value;
+    if (node._position == TokenKind.num) {
       return index == value;
-    } else if (selector._position == TokenKind.POSITION) {
-      switch (selector.operatorKind) {
-        case TokenKind.GREATER:
+    } else if (node._position == TokenKind.position) {
+      switch (node.operatorKind) {
+        case TokenKind.greater:
           return index > value;
-        case TokenKind.GREATER_OR_EQUALS:
+        case TokenKind.greaterOrEquals:
           return index >= value;
-        case TokenKind.LESS:
+        case TokenKind.less:
           return index < value;
-        case TokenKind.LESS_OR_EQUALS:
+        case TokenKind.lessOrEquals:
           return index <= value;
         default:
-          throw _unsupported(selector);
+          throw _unsupported(node);
       }
-    } else if (selector._position == TokenKind.LAST) {
-      switch (selector.operatorKind) {
-        case TokenKind.MINUS:
+    } else if (node._position == TokenKind.last) {
+      switch (node.operatorKind) {
+        case TokenKind.minus:
           return index == _temps.length - value - 1;
-        case TokenKind.NO_MATCH:
+        case TokenKind.noMatch:
           return index >= _temps.length - 1;
         default:
-          throw _unsupported(selector);
+          throw _unsupported(node);
       }
     } else {
-      throw _unsupported(selector);
+      throw _unsupported(node);
     }
   }
 
   @override
-  bool visitSelector(Selector selector) {
-    var result = true;
-    for (var s in selector.simpleSelectors) {
-      result = s.visit(this);
-      if (!result) break;
+  bool visitSelector(Selector node) {
+    for (var s in node.simpleSelectors) {
+      if (!s.visit(this)) return false;
     }
-    return result;
+    return true;
   }
 
   void _removeIfNotMatchPosition(Selector node) {
@@ -256,7 +256,7 @@ class SelectorEvaluator extends VisitorBase {
 class SelectorGroup {
   final List<Selector> selectors;
   final String source;
-  final String output;
+  final String? output;
 
   SelectorGroup(this.selectors, this.output, this.source);
 }
@@ -265,8 +265,8 @@ class SelectorGroup {
 /// select element which match [SimpleSelector]
 ///
 class Selector {
-  /// [TokenKind.CHILD]
-  /// [TokenKind.ROOT]
+  /// [TokenKind.child]
+  /// [TokenKind.root]
   /// [TokenKind.CURRENT]
   /// [TokenKind.PARENT]
   ///
@@ -274,7 +274,7 @@ class Selector {
 
   final List<SimpleSelector> simpleSelectors;
 
-  PositionSelector positionSelector;
+  PositionSelector? positionSelector;
 
   int get operatorKind => _nodeType;
 
@@ -305,15 +305,17 @@ class ElementSelector extends SimpleSelector {
   ElementSelector(String name, String source) : super(name, source);
 
   ///transfer  [VisitorBase.visitElementSelector]
+  @override
   visit(VisitorBase visitor) => visitor.visitElementSelector(this);
 
+  @override
   String toString() => name;
 }
 
 ///select attr of elements
 class AttributeSelector extends SimpleSelector {
   final int _op;
-  final _value;
+  final dynamic _value;
 
   AttributeSelector(String name, this._op, this._value, String source)
       : super(name, source);
@@ -323,6 +325,7 @@ class AttributeSelector extends SimpleSelector {
   get value => _value;
 
   ///transfer  [VisitorBase.visitAttributeSelector]
+  @override
   visit(VisitorBase visitor) => visitor.visitAttributeSelector(this);
 }
 
@@ -332,17 +335,18 @@ class PositionSelector extends SimpleSelector {
   final int _position;
 
   // >  >=  <  <=  or null
-  final int _op;
-  final int _value;
+  final int? _op;
+  final int? _value;
 
   PositionSelector(this._position, this._op, this._value, String source)
       : super("*", source);
 
-  int get operatorKind => _op;
+  int? get operatorKind => _op;
 
   get value => _value;
 
   ///transfer  [VisitorBase.visitPositionSelector]
+  @override
   visit(VisitorBase visitor) => visitor.visitPositionSelector(this);
 }
 

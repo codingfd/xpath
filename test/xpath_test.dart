@@ -1,3 +1,4 @@
+import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 import 'package:xpath_parse/xpath_selector.dart';
 
@@ -12,17 +13,18 @@ final String html = '''
 
 Future<void> main() async {
   test('adds one to input values', () async {
-    var xpath = XPath.source(html);
-    print(xpath.query("//div/a/text()").list());
-    print(xpath.query("//div/a/@href").get());
-    print(xpath.query("//div[@class]/text()").list());
-    print(xpath.query("//div[@class='head']/text()").get());
-    print(xpath.query("//div[@class^='he']/text()").get());
-    print(xpath.query(r"//div[@class$='nd']/text()").get());
-    print(xpath.query("//div[@class*='ea']/text()").get());
-    print(xpath.query("//table//td[1]/text()").get());
-    print(xpath.query("//table//td[last()]/text()").get());
-    print(xpath.query("//table//td[position()<3]/text()").list());
-    print(xpath.query("//table//td[position()>2]/text()").list());
+    final xpath = XPath.source(html);
+
+    expect(xpath.query("//div/a/text()").list(), ['github.com']);
+    expect(xpath.query("//div/a/@href").get(), 'https://github.com');
+    expect(xpath.query("//div[@class]/text()").list(), ['head', 'end']);
+    expect(xpath.query("//div[@class='head']/text()").get(), 'head');
+    expect(xpath.query("//div[@class^='he']/text()").get(), 'head');
+    expect(xpath.query(r"//div[@class$='nd']/text()").get(), 'end');
+    expect(xpath.query("//div[@class*='ea']/text()").get(), 'head');
+    expect(xpath.query("//table//td[1]/text()").get(), '1');
+    expect(xpath.query("//table//td[last()]/text()").get(), '3');
+    expect(xpath.query("//table//td[position()<3]/text()").list(), ['1', '2']);
+    expect(xpath.query("//table//td[position()>2]/text()").list(), ['3', '4']);
   });
 }
