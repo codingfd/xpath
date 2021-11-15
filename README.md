@@ -1,8 +1,10 @@
-# xpath_parse
-[![Pub](https://img.shields.io/pub/v/xpath_parse.svg?style=flat-square)](https://pub.dartlang.org/packages/xpath_parse)
+# html_xpath
+[![Pub](https://img.shields.io/pub/v/html_xpath.svg?style=flat-square)](https://pub.dartlang.org/packages/xpath_parse)
 [![support](https://img.shields.io/badge/platform-dart%20vm-ff69b4.svg?style=flat-square)](https://github.com/codingfd/xpath)
 
 XPath selector based on html.
+
+Null safety version of [xpath_parse](https://pub.flutter-io.cn/packages/xpath_parse)
 ## Get started
 ### Add dependency
 ```yaml
@@ -32,7 +34,7 @@ XPath.source(html).query("//div/a/text()").list()
 
 ```
 
-more simple refer to [this](https://github.com/codingfd/xpath/blob/master/example/xpath_example.dart)
+more simple refer to [this](https://github.com/simonkimi/xpath/blob/master/example/xpath_example.dart)
 
 
 
