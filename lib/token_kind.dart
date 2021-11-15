@@ -36,7 +36,7 @@ class TokenKind {
     "!=": NOT_EQUALS,
     "~=": INCLUDES,
     "^=": PREFIX_MATCH,
-    "\$=": SUFFIX_MATCH,
+    r"$=": SUFFIX_MATCH,
     "*=": SUBSTRING_MATCH
   };
 
