@@ -34,7 +34,7 @@ XPath.source(html).query("//div/a/text()").list()
 
 ```
 
-more simple refer to [this](https://github.com/simonkimi/xpath/blob/master/example/xpath_example.dart)
+more simple refer to [this](https://github.com/simonkimi/xpath/blob/master/example/example.dart)
 
 
 
