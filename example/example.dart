@@ -17,13 +17,14 @@ final String html = '''
 ''';
 
 void main() {
-  var xpath = XPath.source(html);
+  final xpath = XPath.source(html);
+  print(xpath.query('//div').elements());
   print(xpath.query("//div/a/text()").list());
   print(xpath.query("//div/a/@href").get());
   print(xpath.query("//div[@class]/text()").list());
   print(xpath.query("//div[@class='head']/text()").get());
   print(xpath.query("//div[@class^='he']/text()").get());
-  print(xpath.query("//div[@class\$='nd']/text()").get());
+  print(xpath.query(r"//div[@class$='nd']/text()").get());
   print(xpath.query("//div[@class*='ea']/text()").get());
   print(xpath.query("//table//td[1]/text()").get());
   print(xpath.query("//table//td[last()]/text()").get());

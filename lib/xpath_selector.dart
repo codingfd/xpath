@@ -18,6 +18,8 @@ class XPath {
     return XPath(node);
   }
 
+  factory XPath.node(Element node) => XPath(node);
+
   ///query data from [rootElement] by [xpath]
   ///
   SelectorEvaluator query(String xpath) {

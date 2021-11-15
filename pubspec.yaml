@@ -1,6 +1,6 @@
 name: html_xpath
 description: xpath package for dart, uses a path expression to select node or a list of nodes from an HTML document.
-version: 2.0.1
+version: 2.0.2
 homepage: "https://github.com/simonkimi/xpath"
 
 environment:
